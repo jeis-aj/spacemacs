@@ -25,6 +25,12 @@
            emacs-version spacemacs-emacs-min-version)
   (load-file (concat (file-name-directory load-file-name)
                      "core/core-load-paths.el"))
+;; aj add
+  (require 'exwm)  ;; exwm config emacs
+  (require 'exwm-config)
+  (exwm-config-default)
+;; aj end
+
   (require 'core-spacemacs)
   (spacemacs/init)
   (configuration-layer/sync)
