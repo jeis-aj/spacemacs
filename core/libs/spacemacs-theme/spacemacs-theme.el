@@ -170,6 +170,7 @@ to 'auto, tags may not be properly aligned. "
      theme-name
 
 ;;;;; basics
+     `(completions-common-part ((,class (:foreground ,keyword :weight bold))))
      `(cursor ((,class (:background ,cursor))))
      `(custom-button ((,class :background ,bg2 :foreground ,base :box (:line-width 2 :style released-button))))
      `(default ((,class (:background ,bg1 :foreground ,base))))
@@ -192,10 +193,11 @@ to 'auto, tags may not be properly aligned. "
      `(font-lock-warning-face ((,class (:foreground ,war :background ,bg1))))
      `(fringe ((,class (:background ,bg1 :foreground ,base))))
      `(header-line ((,class :background ,bg2)))
+     `(help-key-binding ((,class :foreground ,blue :box (:line-width 1 :color ,blue-bg-s))))
      `(highlight ((,class (:foreground ,base :background ,highlight))))
      `(hl-line ((,class (:background ,bg2 :extend t))))
      `(isearch ((,class (:foreground ,bg1 :background ,mat))))
-     `(lazy-highlight ((,class (:background ,green-bg-s :weight normal))))
+     `(lazy-highlight ((,class (:background ,green-bg-s))))
      `(link ((,class (:foreground ,comment :underline t))))
      `(link-visited ((,class (:foreground ,comp :underline t))))
      `(match ((,class (:background ,highlight :foreground ,mat))))
@@ -1003,6 +1005,11 @@ to 'auto, tags may not be properly aligned. "
      `(whitespace-space-before-tab ((,class (:background unspecified :foreground ,yellow))))
      `(whitespace-tab ((,class (:background unspecified :foreground ,act2))))
      `(whitespace-trailing ((,class (:background ,err :foreground ,war))))
+
+;;;;; window-tool-bar-mode
+     `(window-tool-bar-button ((,class (:foreground ,base :background ,bg1 :weight bold :box (:line-width -1 :style released-button)))))
+     `(window-tool-bar-button-hover ((,class (:inherit window-tool-bar-button :inverse-video t))))
+     `(window-tool-bar-button-disabled ((,class (:inherit window-tool-bar-button :foreground ,base-dim :background ,bg2))))
 
 ;;;;; other, need more work
      `(ac-completion-face ((,class (:underline t :foreground ,keyword))))

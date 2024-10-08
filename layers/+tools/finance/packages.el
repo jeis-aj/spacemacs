@@ -21,19 +21,17 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(setq finance-packages
-  '(
-    company
+(defconst finance-packages
+  '(company
     flycheck
     (flycheck-ledger :requires flycheck)
     ledger-mode
-    (evil-ledger :toggle (memq dotspacemacs-editing-style '(vim hybrid)))
-    ))
+    (evil-ledger :toggle (memq dotspacemacs-editing-style '(vim hybrid)))))
 
 (defun finance/post-init-company ()
   (spacemacs|add-company-backends
-    :backends company-capf
-    :modes ledger-mode))
+   :backends company-capf
+   :modes ledger-mode))
 
 (defun finance/post-init-flycheck ()
   (spacemacs/enable-flycheck 'ledger-mode))
@@ -89,5 +87,5 @@
     (evilified-state-evilify-map ledger-report-mode-map
       :eval-after-load ledger-report
       :mode ledger-report-mode)
-    (define-advice ledger-add-transaction (:before (&rest _) add-evil-jump)
-      (evil-set-jump))))
+    (evil-add-command-properties 'ledger-add-transaction :jump t)
+    (evil-add-command-properties 'ledger-copy-transaction-at-point :jump t)))

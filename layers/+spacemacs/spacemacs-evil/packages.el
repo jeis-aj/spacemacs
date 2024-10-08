@@ -68,7 +68,7 @@
                    (replace-query (format "(%d replace)" total))
                    (replace (format "(%d/%d)" here total)))))
             status))))
-    (when (eq (spacemacs/get-mode-line-theme-name) 'spaceline)
+    (when (eq (spacemacs/get-mode-line-theme-name) 'spacemacs)
       (setq anzu-mode-line-update-function 'spacemacs/anzu-update-mode-line
             anzu-cons-mode-line-p nil))))
 
@@ -231,6 +231,9 @@
       :evil-states (lisp)
       :override-minor-modes t
       :override-mode-name spacemacs-leader-override-mode)
+
+    (define-key evil-lisp-state-map "u" 'evil-undo)
+    (define-key evil-lisp-state-map (kbd "C-r") 'evil-redo)
 
     (spacemacs/set-leader-keys "k" evil-lisp-state-map)
     (spacemacs/declare-prefix

@@ -54,8 +54,7 @@
   (with-eval-after-load 'smartparens
     (sp-local-pair 'java-mode "/** " " */" :trigger "/**")))
 
-(defun java/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'java-mode))
+(defun java/post-init-counsel-gtags nil)
 
 (defun java/pre-init-org ()
   (spacemacs|use-package-add-hook org
@@ -161,7 +160,7 @@
       "ro" 'lsp-java-organize-imports
       "rcp" 'lsp-java-create-parameter
       "rcf" 'lsp-java-create-field
-      "rci" 'lsp-java-conver-to-static-import
+      "rci" 'lsp-java-convert-to-static-import
       "rec" 'lsp-java-extract-to-constant
       "rel" 'lsp-java-extract-to-local-variable
       "rem" 'lsp-java-extract-method

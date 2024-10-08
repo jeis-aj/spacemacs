@@ -326,8 +326,7 @@
       (clojure/fancify-symbols 'cider-repl-mode)
       (clojure/fancify-symbols 'cider-clojure-interaction-mode))
 
-    (defadvice cider-find-var (before add-evil-jump activate)
-      (evil-set-jump))))
+    (evil-add-command-properties 'cider-find-var :jump t)))
 
 (defun clojure/init-cider-eval-sexp-fu ()
   (with-eval-after-load 'eval-sexp-fu
@@ -477,8 +476,7 @@
 (defun clojure/post-init-ggtags ()
   (add-hook 'clojure-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
 
-(defun clojure/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'clojure-mode))
+(defun clojure/post-init-counsel-gtags nil)
 
 (defun clojure/init-clojure-snippets ()
   (use-package clojure-snippets
@@ -613,7 +611,7 @@
 (defun clojure/init-flycheck-clojure ()
   (use-package flycheck-clojure
     :if (configuration-layer/package-usedp 'flycheck)
-    :config 
+    :config
     (flycheck-clojure-setup)
     (with-eval-after-load 'cider
       (flycheck-clojure-inject-jack-in-dependencies))))

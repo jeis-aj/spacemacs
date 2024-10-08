@@ -117,7 +117,7 @@ Last but not least there are a lot of high class tutorials available on YouTube:
 2. Spacemacs is an extension of a popular text editor called [Emacs][GNU Emacs].
    So you'll need Emacs installed first.
 
-   Spacemacs requires Emacs 27.1 or above. The development version of Emacs is
+   Spacemacs requires Emacs 28.2 or above. The development version of Emacs is
    not *officially* supported, but it should nevertheless be expected to work.
 
 3. [git][Git] is required to download and update Spacemacs.
@@ -170,7 +170,7 @@ Last but not least there are a lot of high class tutorials available on YouTube:
    differences][Emacs And XEmacs].
 
    **N.B.** Some Linux distributions support only Emacs versions older than
-   27.1. In this case you should
+   28.2. In this case you should
    [build it from source][Build Emacs from Source] instead.
 
 3. Very likely Git is already installed on your system. Otherwise, you should
@@ -220,6 +220,14 @@ Last but not least there are a lot of high class tutorials available on YouTube:
       brew install emacs-plus --with-spacemacs-icon --with-native-comp
       ```
 
+      You will require the latest version of Xcode Command Line tools, which can be
+      downloaded from the [Apple Developer Portal](https://developer.apple.com/download/all/)
+      or by running the following command:
+
+      ```sh
+      softwareupdate --all --install --force
+      ```
+
    2. [Emacs Mac Port][] adds native GUI support to Emacs 28. And the full list
       of features is available [here][Emacs Mac Port features].
 
@@ -265,9 +273,18 @@ Last but not least there are a lot of high class tutorials available on YouTube:
    ```
 
 ### Windows
+We recommend using wsl2 with wslg support especially with a pgtk build of emacs and wayland.
+For the installation please refer to the linux installation section. When running emacs
+within your wsl2 environment emacs will be handled like any other windows application.
 
-1. We recommend [Scoop][] as the package manager for Windows users. You can
-   install it via PowerShell:
+If this is not possible you can fallback to a native windows installation, however note
+that this will create a lot of subtle bugs especially with tls which we will most likely
+not be able to help with.
+
+If you need to follow that path we recommend to at least use a package manager like
+[Scoop][] to install the needed packages.
+
+1. You can install [Scoop][] via PowerShell:
 
    ```powershell
    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser # Optional: Needed to run a remote script the first time
@@ -448,10 +465,9 @@ Dock][icon-mac-instructions].
 ## Notes
 
 - Depending on the installed version of GnuTLS, securely installing Emacs
-  packages may fail. It may also fail if you have a bad internet environment.
-  In either case it is possible to install packages using `emacs --insecure`.
-  However be aware that this means your packages will be transferred using HTTP,
-  use at your own risk.
+  packages may fail. If this happens to you please update your OS and Emacs.
+  If you are behind a company proxy please trust the company firewall cert.
+  We do not longer support disabling https due to security reasons.
 
 - (*Windows)* If the following error occurs after starting Emacs:
 

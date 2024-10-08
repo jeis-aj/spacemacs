@@ -88,7 +88,6 @@
       "hda" 'counsel-apropos
       "hdf" 'counsel-describe-function
       "hdF" 'counsel-describe-face
-      "hdm" 'spacemacs/describe-mode
       "hdv" 'counsel-describe-variable
       "hdx" 'spacemacs/describe-ex-command
       "hi"  'counsel-info-lookup-symbol
@@ -158,6 +157,9 @@
       (ivy-set-actions
        action
        spacemacs--ivy-grep-actions))
+
+    (dolist (command '(counsel-org-goto counsel-imenu spacemacs/counsel-jump-in-buffer))
+      (evil-add-command-properties command :jump t))
 
     (when (or (eq 'vim dotspacemacs-editing-style)
               (and (eq 'hybrid dotspacemacs-editing-style)

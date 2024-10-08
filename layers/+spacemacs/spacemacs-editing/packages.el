@@ -29,6 +29,7 @@
     drag-stuff
     editorconfig
     eval-sexp-fu
+    evil-collection
     expand-region
     (hexl :location built-in)
     hungry-delete
@@ -44,7 +45,10 @@
     string-edit-at-point
     string-inflection
     multi-line
-    undo-tree
+    (undo-tree :toggle (eq 'undo-tree dotspacemacs-undo-system))
+    (undo-fu :toggle (eq 'undo-fu dotspacemacs-undo-system))
+    (undo-fu-session :toggle (not (eq 'undo-tree dotspacemacs-undo-system)))
+    (vundo :toggle (not (eq 'undo-tree dotspacemacs-undo-system)))
     (unkillable-scratch :toggle dotspacemacs-scratch-buffer-unkillable)
     uuidgen
     (vimish-fold :toggle (eq 'vimish dotspacemacs-folding-method))
@@ -174,30 +178,29 @@
     :config
     ;; add search capability to expand-region
     (when (configuration-layer/package-used-p 'helm-ag)
-      (defadvice er/prepare-for-more-expansions-internal
-          (around helm-ag/prepare-for-more-expansions-internal activate)
-        ad-do-it
-        (let ((new-msg (concat (car ad-return-value)
+      (define-advice er/prepare-for-more-expansions-internal (:around (f &rest args) helm-ag/prepare-for-more-expansions-internal)
+        (let* ((return-value (apply f args))
+               (new-msg (concat (car return-value)
                                 ", / to search in project, "
                                 "f to search in files, "
                                 "b to search in opened buffers"))
-              (new-bindings (cdr ad-return-value)))
+               (new-bindings (cdr return-value)))
           (cl-pushnew
-            '("/" (lambda ()
-                    (call-interactively
+           '("/" (lambda ()
+                   (call-interactively
                     'spacemacs/helm-project-smart-do-search-region-or-symbol)))
-            new-bindings)
+           new-bindings)
           (cl-pushnew
-            '("f" (lambda ()
-                    (call-interactively
+           '("f" (lambda ()
+                   (call-interactively
                     'spacemacs/helm-files-smart-do-search-region-or-symbol)))
-            new-bindings)
+           new-bindings)
           (cl-pushnew
-            '("b" (lambda ()
-                    (call-interactively
+           '("b" (lambda ()
+                   (call-interactively
                     'spacemacs/helm-buffers-smart-do-search-region-or-symbol)))
-            new-bindings)
-          (setq ad-return-value (cons new-msg new-bindings))))
+           new-bindings)
+          (cons new-msg new-bindings)))
       (setq expand-region-contract-fast-key "V"
             expand-region-reset-fast-key "r"))))
 
@@ -445,13 +448,14 @@
     (show-smartparens-global-mode +1)
     ;; don't create a pair with single quote in minibuffer
     (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+    (sp-local-pair 'minibuffer-mode "'" nil :actions nil)
     (sp-pair "{" nil :post-handlers
-              '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+             '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
     (sp-pair "[" nil :post-handlers
-              '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+             '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
     (when dotspacemacs-smart-closing-parenthesis
       (define-key evil-insert-state-map ")"
-        'spacemacs/smart-closing-parenthesis))))
+                  'spacemacs/smart-closing-parenthesis))))
 
 (defun spacemacs-editing/init-spacemacs-whitespace-cleanup ()
   (use-package spacemacs-whitespace-cleanup
@@ -466,14 +470,12 @@
     (spacemacs|add-toggle global-whitespace-cleanup
       :mode global-spacemacs-whitespace-cleanup-mode
       :status spacemacs-whitespace-cleanup-mode
-      :on (let ((spacemacs-whitespace-cleanup-globally t))
-            (spacemacs-whitespace-cleanup-mode))
-      :off (let ((spacemacs-whitespace-cleanup-globally t))
-              (spacemacs-whitespace-cleanup-mode -1))
       :on-message (spacemacs-whitespace-cleanup/on-message t)
       :documentation "Global automatic whitespace clean up."
       :evil-leader "t C-S-w")
     (with-eval-after-load 'ws-butler
+      ;; handle reloading configuration
+      (spacemacs/toggle-global-whitespace-cleanup-off)
       (when dotspacemacs-whitespace-cleanup
         (spacemacs/toggle-global-whitespace-cleanup-on)))
     :config
@@ -507,10 +509,10 @@
     (spacemacs/set-leader-keys "xe" 'string-edit-at-point)
     :config
     (spacemacs/set-leader-keys-for-minor-mode 'string-edit-at-point-mode
-      "," 'string-edit-conclude
-      "c" 'string-edit-conclude
-      "a" 'string-edit-abort
-      "k" 'string-edit-abort)))
+      "," 'string-edit-at-point-conclude
+      "c" 'string-edit-at-point-conclude
+      "a" 'string-edit-at-point-abort
+      "k" 'string-edit-at-point-abort)))
 
 (defun spacemacs-editing/init-multi-line ()
   (use-package multi-line
@@ -532,11 +534,6 @@
           undo-tree-visualizer-diff t
           ;; See `vim-style-enable-undo-region'.
           undo-tree-enable-undo-in-region t
-          ;; 10X bump of the undo limits to avoid issues with premature
-          ;; Emacs GC which truncages the undo history very aggresively
-          undo-limit 800000
-          undo-strong-limit 12000000
-          undo-outer-limit 120000000
           undo-tree-history-directory-alist
           `(("." . ,(let ((dir (expand-file-name "undo-tree-history" spacemacs-cache-directory)))
                       (if (file-exists-p dir)
@@ -547,6 +544,7 @@ See variable `undo-tree-history-directory-alist'." dir))
                         (make-directory dir))
                       dir))))
     (global-undo-tree-mode)
+    (spacemacs/set-leader-keys "au" 'undo-tree-visualize)
     :config
     ;; restore diff window after quit.  TODO fix upstream
     (defun spacemacs/undo-tree-restore-default ()
@@ -561,9 +559,43 @@ See variable `undo-tree-history-directory-alist'." dir))
       (kbd "h") 'undo-tree-visualize-switch-branch-left
       (kbd "l") 'undo-tree-visualize-switch-branch-right)))
 
+(defun spacemacs-editing/init-undo-fu ()
+  (use-package undo-fu
+    :defer t
+    :custom
+    (undo-fu-allow-undo-in-region t)
+    (undo-fu-ignore-keyboard-quit t)))
+
+(defun spacemacs-editing/init-undo-fu-session ()
+  (use-package undo-fu-session
+    :defer t
+    :custom
+    (undo-fu-session-incompatible-files '("\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+    (undo-fu-session-directory (let ((dir (expand-file-name "undo-fu-session" spacemacs-cache-directory)))
+                                 (if (file-exists-p dir)
+                                     (unless (file-accessible-directory-p dir)
+                                       (warn "Cannot access directory `%s'.
+Perhaps you don't have required permissions, or it's not a directory.
+See variable `undo-fu-session-directory'." dir))
+                                   (make-directory dir))
+                                 dir))
+    (undo-fu-session-compression (if (executable-find "zstd") 'zst 'gz))
+    :init
+    (undo-fu-session-global-mode)))
+
+(defun spacemacs-editing/init-vundo ()
+  (use-package vundo
+    :defer t
+    :init
+    (spacemacs/set-leader-keys "au" 'vundo)))
+
+(defun spacemacs-editing/pre-init-evil-collection ()
+  (when (spacemacs//support-evilified-buffer-p)
+    (add-to-list 'spacemacs-evil-collection-allowed-list 'vundo)))
+
 (defun spacemacs-editing/init-uuidgen ()
   (use-package uuidgen
-    :commands (uuidgen-1 uuidgen-4)
+    :autoload (uuidgen-1 uuidgen-4)
     :init
     (spacemacs/declare-prefix "iU" "uuid")
     (spacemacs/set-leader-keys

@@ -38,7 +38,8 @@
         restart-emacs
         (smooth-scrolling :location built-in)
         symbol-overlay
-        winum))
+        winum
+        disable-mouse))
 
 (defun spacemacs-navigation/init-ace-link ()
   (use-package ace-link
@@ -188,15 +189,14 @@
       (kbd "C-k") 'doc-view-kill-proc
       (kbd "C-u") 'doc-view-scroll-down-or-previous-page)
     ;; fixed a weird issue where toggling display does not
-    ;; swtich to text mode
-    (defadvice doc-view-toggle-display
-        (around spacemacs/doc-view-toggle-display activate)
+    ;; switch to text mode
+    (define-advice doc-view-toggle-display (:around (f &rest args) spacemacs/doc-view-toggle-display)
       (if (eq major-mode 'doc-view-mode)
           (progn
-            ad-do-it
+            (apply f args)
             (text-mode)
             (doc-view-minor-mode))
-        ad-do-it))))
+        (apply f args)))))
 
 (defun spacemacs-navigation/init-view ()
   (use-package view
@@ -452,3 +452,12 @@
     (define-key winum-keymap (kbd "M-8") 'winum-select-window-8)
     (define-key winum-keymap (kbd "M-9") 'winum-select-window-9)
     (winum-mode)))
+
+(defun spacemacs-navigation/init-disable-mouse ()
+  (use-package disable-mouse
+    :defer t
+    :init
+    (spacemacs|add-toggle disable-mouse-input-globally
+      :mode disable-mouse-global-mode :evil-leader "tM")
+    :config
+    (spacemacs|diminish disable-mouse-global-mode " Ⓜ" " M")))

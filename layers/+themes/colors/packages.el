@@ -25,7 +25,7 @@
   '(
     ;; not working well for now
     ;; rainbow-blocks
-    (nyan-mode :location local)
+    nyan-mode
     color-identifiers-mode
     rainbow-identifiers
     rainbow-mode))
@@ -93,7 +93,7 @@
                                                   font-lock-keyword-face
                                                   font-lock-function-name-face
                                                   font-lock-variable-name-face))
-    (defadvice spacemacs/post-theme-init (after colors/post-theme-init activate)
+    (define-advice spacemacs/post-theme-init (:after (&rest _) colors/post-theme-init)
       "Adjust lightness and brightness of rainbow-identifiers on post theme init."
       (colors//tweak-theme-colors spacemacs--cur-theme))
     ;; key bindings
